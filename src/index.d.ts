@@ -1,6 +1,27 @@
 declare module "mongoid-js";
 declare module "shade-blend-color";
 
+interface ScanStatus {
+  items: number;  
+  total: number;  
+  errors: number;  
+}
+
+interface LocationState {
+  disk: string;
+  used?: number;
+  fullscan: boolean;
+  isDirectory: boolean;
+}
+
+interface Disk {
+  name: string;
+  sMountPoint: string;
+  totalSpace: number;
+  availableSpace: number;
+  isRemovable: boolean
+}
+
 interface DiskItem {
   id: string;
   name: string;

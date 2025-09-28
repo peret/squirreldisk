@@ -23,7 +23,7 @@ import { remove } from "@tauri-apps/plugin-fs";
 const Scanning = () => {
   let {
     state: { disk, used, fullscan },
-  } = useLocation() as any;
+  }: { state: LocationState } = useLocation();
   const navigate = useNavigate();
 
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -43,7 +43,7 @@ const Scanning = () => {
   const d3Chart = useRef(null) as any;
   const [view, setView] = useState("loading");
   const [bytesProcessed, setByteProcessed] = useState(0);
-  const [status, setStatus]: any = useState();
+  const [status, setStatus] = useState<ScanStatus>();
   const [deleteState, setDeleteState] = useState({
     isDeleting: false,
     total: 0,
@@ -131,8 +131,13 @@ const Scanning = () => {
       });
     }
   }, [view]);
-  // Avoid progress bar going to the star due to undetectable fs hardlinks
-  const cappedTotal = Math.min(status ? status.total : 0, used);
+
+  const percentage = (used: number) => {
+    // Avoid progress bar going to the star due to undetectable fs hardlinks
+    const cappedTotal = Math.min(status ? status.total : 0, used);
+    return ((cappedTotal / used) * 100).toFixed(2);
+  };
+
   return (
     <>
       {view == "loading" && status && (
@@ -140,19 +145,26 @@ const Scanning = () => {
           <img src={diskIcon} className="w-16 h-16"></img>
           <div className="w-2/3">
             <div className="mt-5 mb-1 text-base text-center font-medium text-white">
-              Scanning {disk} {((cappedTotal / used) * 100).toFixed(2)}
-              %
+              {used
+                ? `Scanning ${disk} ${percentage(used)} %`
+                : `Scanning ${disk}`}
               <br />
               {/* <span className="text-sm">{itemPath}</span> */}
             </div>
-            <div className="mt-4 w-full bg-gray-200 rounded-full h-2.5">
-              <div
-                className="bg-blue-600 h-2.5 rounded-full"
-                style={{
-                  width: ((cappedTotal / used) * 100).toFixed(2) + "%",
-                }}
-              ></div>
-            </div>
+            {used ? (
+              <div className="mt-4 w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  className="bg-blue-600 h-2.5 rounded-full"
+                  style={{
+                    width: percentage(used) + "%",
+                  }}
+                ></div>
+              </div>
+            ) : (
+              <div className="mt-4 w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                <div className="progress left-right bg-blue-600 h-2.5 rounded-full"></div>
+              </div>
+            )}
           </div>
           <button
             onClick={() => navigate("/")}

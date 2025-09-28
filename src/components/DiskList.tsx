@@ -19,7 +19,7 @@ declare global {
 }
 
 const DiskList = () => {
-  const [disks, setDisks] = useState([]);
+  const [disks, setDisks] = useState<Disk[]>([]);
   const [appVersion, setAppVersion] = useState("1.0.0");
   const navigate = useNavigate();
   useEffect(() => {
@@ -32,9 +32,9 @@ const DiskList = () => {
     // window.electron.diskUtils.killDiskSizeWorker();
     const syncDisks = async () => {
       const disksString: string = await invoke("get_disks");
-      const disks = JSON.parse(disksString);
+      const disks: Disk[] = JSON.parse(disksString);
       const plat = platform();
-      let filtered = disks.filter((disk: any) => {
+      let filtered = disks.filter((disk: Disk) => {
         if (plat === "macos" && disk.sMountPoint === "/System/Volumes/Data") {
           return false; // Since it will be used /System/Volumes/Data
         }
@@ -67,6 +67,15 @@ const DiskList = () => {
       window.Headway.init(config);
     }
   }, []);
+
+  const getLocationState = (directory: string): LocationState => {
+    return {
+      disk: directory.replace(/\\/g, "/"),
+      fullscan: false,
+      isDirectory: true,
+    };
+  };
+
   return (
     <div className="flex-1 flex flex-col">
       <div className="text-white flex-1">
@@ -81,14 +90,7 @@ const DiskList = () => {
               directory: true,
             }).then((directory) => {
               if (directory)
-                navigate("/disk", {
-                  state: {
-                    disk: (directory as string).replace(/\\/g, "/"),
-                    used: 0,
-                    fullscan: false,
-                    isDirectory: true,
-                  },
-                });
+                navigate("/disk", { state: getLocationState(directory) });
               console.log({ directory });
             });
           }}

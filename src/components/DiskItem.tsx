@@ -4,7 +4,7 @@ import removableDriver from "../assets/removable-drive.png";
 
 import { useNavigate } from "react-router-dom";
 
-const DiskItem = ({ disk }: any) => {
+const DiskItem = ({ disk }: { disk: Disk }) => {
   const navigate = useNavigate();
   const x = [
     { tc: "text-green-700", bg: "bg-green-600", from: 0, to: 0.6 },
@@ -18,25 +18,24 @@ const DiskItem = ({ disk }: any) => {
   const icona = disk.isRemovable ? removableDriver : diskIcon;
   const mul = window.OS_TYPE === "windows" ? 1024 : 1000;
 
+  const diskState = (fullscan: boolean): LocationState => ({
+    disk: disk.sMountPoint,
+    used: disk.totalSpace - disk.availableSpace,
+    fullscan: fullscan,
+    isDirectory: false,
+  });
+
   return (
     <div
       onContextMenu={(e) => {
         e.preventDefault();
         navigate("/disk", {
-          state: {
-            disk: disk.sMountPoint,
-            used: disk.totalSpace - disk.availableSpace,
-            fullscan: true,
-          },
+          state: diskState(true),
         });
       }}
       onClick={() => {
         navigate("/disk", {
-          state: {
-            disk: disk.sMountPoint,
-            used: disk.totalSpace - disk.availableSpace,
-            fullscan: false,
-          },
+          state: diskState(false),
         });
       }}
       className="text-white p-4 flex gap-4 items-center hover:bg-gray-800 cursor-pointer"
