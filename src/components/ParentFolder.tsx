@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
-import prettyBytes from "pretty-bytes";
 import { getIconForFolder } from "vscode-icons-js";
+import { humanReadableBytes } from "../humanReadableBytes";
 // import { iconImages } from "./iconImages";
 import { buildFullPath } from "../pruneData";
 interface ParentFolderProps {
@@ -11,7 +11,6 @@ export const ParentFolder = ({
   focusedDirectory,
   d3Chart,
 }: ParentFolderProps) => {
-  const mul = window.OS_TYPE === "windows" ? 1024 : 1000;
   return (
     <div
       className="bg-gray-800 p-2 text-white flex justify-between rounded-md cursor-pointer"
@@ -42,9 +41,7 @@ export const ParentFolder = ({
             .replace("\\", "/")}
       </div>
       <div className="text-xs">
-        {focusedDirectory &&
-          (focusedDirectory.data.value! / mul / mul / mul).toFixed(2)}{" "}
-        GB
+        {focusedDirectory && humanReadableBytes(focusedDirectory.data.value!)}
       </div>
     </div>
   );

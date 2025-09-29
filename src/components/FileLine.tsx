@@ -1,9 +1,9 @@
-import prettyBytes from "pretty-bytes";
 import { buildFullPath } from "../pruneData";
 import { getIconForFile, getIconForFolder } from "vscode-icons-js";
 // import { iconImages } from "./iconImages";
 import { Draggable } from "react-beautiful-dnd";
 import { invoke } from "@tauri-apps/api/core";
+import { humanReadableBytes } from "../humanReadableBytes";
 
 interface FileLineProps {
   item: D3HierarchyDiskItem;
@@ -13,7 +13,6 @@ interface FileLineProps {
   deleteMap: Map<string, boolean>;
 }
 
-const mul = window.OS_TYPE === "windows" ? 1024 : 1000;
 export const FileLine = ({
   item,
   hoveredItem,
@@ -63,10 +62,7 @@ export const FileLine = ({
           </div>
           <div className="flex-1 basis-3/12 text-right text-xs">
             {/* {JSON.stringify(item.data)} */}
-            {item &&
-              item.data &&
-              (item.data.size / mul / mul / mul).toFixed(2)}{" "}
-            GB
+            {humanReadableBytes(item.data.size)}
           </div>
         </div>
       )}
